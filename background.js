@@ -1,28 +1,33 @@
+let socket = null
+// on icon click
 chrome.browserAction.onClicked.addListener(tab => {
   const domain = getDomain(tab.url)
-  chrome.storage.local.get([domain], checkDomain(domain, tab))
+  chrome.storage.local.get([domain], switchState(domain, tab))
 })
 
+// on switch tab
 chrome.tabs.onActivated.addListener(ev => {
   chrome.tabs.get(ev.tabId, tab => {
     const domain = getDomain(tab.url)
 
     chrome.storage.local.get([domain], result => {
-      if (result[domain]) chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
+      const store = result[domain]
+      if (store && store.state) chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
     })
   })
 })
 
+// on page load/reload
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   const { favIconUrl } = changeInfo
 
   if (favIconUrl) {
-    console.log('--->', 'update')
     const domain = getDomain(tab.url)
 
     chrome.storage.local.get([domain], result => {
-      if (result[domain]) {
-        chrome.tabs.executeScript({ file: 'contentScript.js' })
+      const store = result[domain]
+      if (store && store.state) {
+        executeScript(store, false)
         chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
       }
     })
@@ -37,20 +42,58 @@ const getDomain = url => {
   return withoutProtocol.slice(0, withoutProtocol.indexOf('/'))
 }
 
-
-const checkDomain = (domain, tab) => result => {
-  if (result[domain]) {
-    chrome.storage.local.set({ [domain]: false }, () => {
+const switchState = (domain, tab) => result => {
+  const store = result[domain]
+  if (store && store.state) {
+    chrome.storage.local.set({ [domain]: { ...store, state: false } }, () => {
       chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('off') })
+      if (socket) {
+        socket.close()
+        socket = null
+      }
       console.log('off')
     })
   } else {
-    chrome.storage.local.set({ [domain]: true }, () => {
-      chrome.tabs.executeScript({ file: 'contentScript.js' })
+    if (!socket) socket = connect(domain)
+    chrome.storage.local.set({ [domain]: { ...store, state: true } }, () => {
+      executeScript(store, false)
       chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
       console.log('on')
     })
   }
+}
+
+
+
+
+const connect = domain => {
+  const socket = new WebSocket('ws://localhost:9999')
+
+  socket.onclose = function(ev) {
+    console.log(`${getTime()} Websocket was disconnected (code: ${ev.code})`)
+  }
+
+  socket.onmessage = function(ev) {
+    const { data } = ev
+    const type = data.slice(0, 2) === 'st' ? 'style' : 'script'
+
+    chrome.storage.local.get([domain], result => {
+      const store = { ...result[domain], [type]: data.slice(2) }
+      chrome.storage.local.set({ [domain]: store }, () => executeScript(store, true))
+    })
+  }
+
+  socket.onerror = function(err) {
+    console.log(`${getTime()} Websocket error: ${err.message}`)
+  }
+
+  return socket
+}
+
+const executeScript = (store, reload) => {
+  chrome.tabs.executeScript({ code: `var store = ${JSON.stringify({ ...store, reload })}` }, () => {
+      chrome.tabs.executeScript({file: 'content.js'});
+  })
 }
 
 const getIcons = state => {
@@ -59,3 +102,14 @@ const getIcons = state => {
     '128': `icons/${state}-128.png`
   }
 }
+
+const getTime = () => {
+  const now = new Date()
+  const add0 = n => n > 9 ? n : '0' + n
+  return `[${add0(now.getHours())}:${add0(now.getMinutes())}:${add0(now.getSeconds())}]`
+}
+
+chrome.storage.onChanged.addListener((change, area) => {
+  console.log('--->', change, 'change')
+  console.log('--->', area, 'area')
+})
