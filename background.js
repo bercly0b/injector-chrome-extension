@@ -27,7 +27,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.storage.local.get([domain], result => {
       const store = result[domain]
       if (store && store.state) {
-        executeScript(store, false)
+        executeScript(store)
         chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
       }
     })
@@ -56,14 +56,12 @@ const switchState = (domain, tab) => result => {
   } else {
     if (!socket) socket = connect(domain)
     chrome.storage.local.set({ [domain]: { ...store, state: true } }, () => {
-      executeScript(store, false)
+      executeScript(store)
       chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
       console.log('on')
     })
   }
 }
-
-
 
 
 const connect = domain => {
@@ -79,7 +77,9 @@ const connect = domain => {
 
     chrome.storage.local.get([domain], result => {
       const store = { ...result[domain], [type]: data.slice(2) }
-      chrome.storage.local.set({ [domain]: store }, () => executeScript(store, true))
+      chrome.storage.local.set({ [domain]: store }, () => {
+        chrome.tabs.executeScript({ code: 'location.reload()' })
+      })
     })
   }
 
@@ -90,8 +90,8 @@ const connect = domain => {
   return socket
 }
 
-const executeScript = (store, reload) => {
-  chrome.tabs.executeScript({ code: `var store = ${JSON.stringify({ ...store, reload })}` }, () => {
+const executeScript = store => {
+  chrome.tabs.executeScript({ code: `var store = ${JSON.stringify(store)}` }, () => {
       chrome.tabs.executeScript({file: 'content.js'});
   })
 }
@@ -108,8 +108,3 @@ const getTime = () => {
   const add0 = n => n > 9 ? n : '0' + n
   return `[${add0(now.getHours())}:${add0(now.getMinutes())}:${add0(now.getSeconds())}]`
 }
-
-chrome.storage.onChanged.addListener((change, area) => {
-  console.log('--->', change, 'change')
-  console.log('--->', area, 'area')
-})

@@ -1,9 +1,5 @@
-console.log('--->', store)
-var { style, script, reload } = store
-
-if (style) injectStyles(style)
-if (script) injectScript(script)
-if (reload) location.reload()
+store.style && injectStyles(store.style)
+store.script && injectScript(store.script)
 
 function getTime() {
   const now = new Date()
