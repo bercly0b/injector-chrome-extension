@@ -8,6 +8,9 @@ chrome.storage.onChanged.addListener((changes) => {
     const { newValue, oldValue } = params
     if (oldValue.active.id !== newValue.active.id) switchState(newValue.active, newValue.port)
   }
+  // if (reconnect) {
+  //   const { newValue, oldValue } = reconnect
+  // }
 })
 
 // on page load/reload
@@ -37,6 +40,9 @@ const getDomain = url => {
 }
 
 const switchState = (tab, port) => {
+  socket && socket.close()
+  socket = null
+
   if (tab.id) {
     const domain = getDomain(tab.url)
     if (!socket) socket = connect(domain, tab.id, port)
@@ -46,10 +52,6 @@ const switchState = (tab, port) => {
       executeScript(store, tab.id)
     })
     console.log('on')
-  } else {
-    socket && socket.close()
-    socket = null
-    console.log('off')
   }
 }
 
@@ -90,7 +92,6 @@ const reloadPage = tabId => {
 }
 
 const executeScript = (store, tabId) => {
-  console.log('--->', store, 'from execute')
   chrome.storage.local.get(['params'], ({ params }) => {
     const { log } = params
     chrome.tabs.executeScript(
