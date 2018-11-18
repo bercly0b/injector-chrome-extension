@@ -4,7 +4,6 @@
     <link rel="stylesheet" href="src/popup.css">
   </head>
   <body>
-
     <main class="container">
       <section class="row">
         <label for="state">Listen websocket</label>
@@ -19,10 +18,10 @@
         <input id="log" class="checkbox" type="checkbox" disabled>
       </section>
       <section class="row">
-        <label for="port">Port:</label>
-        <input id="port" class="text" type="text" placeholder="9999" value="">
+        <label for="port">Port</label>
+        <input id="port" class="text" type="text" placeholder="9999" maxlength="5" disabled>
       </section>
-      <button id="reconnect" class="button" type="button" name="button">Reconnect</button>
+      <button id="reconnect" class="button" type="button" name="button" disabled>Reconnect</button>
     </main>
   </body>
   <script type="text/javascript" src="src/popup.js"></script>

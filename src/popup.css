@@ -59,8 +59,13 @@ html {
   border-color:#8daee5;
 }
 
-.checkbox:disabled {
+.checkbox:disabled,
+.button:disabled {
   opacity:0.5;
+}
+
+.text:disabled {
+  opacity: 0.4;
 }
 
 .checkbox:focus,
@@ -75,6 +80,10 @@ html {
   border: 1px solid #aaa;
   border-radius: 2px;
   text-align: center;
+}
+
+.text--error {
+  border: 1px solid #ffbaba;
 }
 
 .text::-webkit-input-placeholder {
