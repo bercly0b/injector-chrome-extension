@@ -6,16 +6,21 @@ const logI = get('log')
 const portI = get('port')
 const reconnectI = get('reconnect')
 
+chrome.storage.local.get(['params'], ({ params }) => {
+  chrome.tabs.query({ active: true }, ([tab]) => {
+    if (params.active.id === tab.id) syncView(params)
+  })
+})
 
 stateI.addEventListener('input', function() {
   chrome.storage.local.get(['params'], ({ params }) => {
     if (this.checked) {
       chrome.tabs.query({ active: true }, ([tab]) => {
-        const newParams = { ...params, active: tab.id }
+        const newParams = { ...params, active: tab }
         chrome.storage.local.set({ params: newParams }, () => syncView(newParams))
       })
     } else {
-      const newParams = { ...params, active: false }
+      const newParams = { ...params, active: { id: false } }
       chrome.storage.local.set({ params: newParams }, () => syncView(newParams))
     }
   })
@@ -34,19 +39,17 @@ portI.addEventListener('keydown', function(ev) {
 })
 
 reconnectI.addEventListener('click', function() {
-  chrome.storage.local.set({ reconnect: true })
+  chrome.storage.local.set({ reconnect: portI.value })
 })
 
 const syncView = params => {
   const { active, livereload, log, port } = params
-  const controls = [livereloadI, logI, portI, reconnectI]
+  const controls = [livereloadI, logI, reconnectI]
 
-  // console.log('--->', params)
-
-  if (active) controls.forEach(e => e.removeAttribute('disabled'))
+  if (active.id) controls.forEach(e => e.removeAttribute('disabled'))
   else controls.forEach(e => e.setAttribute('disabled', true))
 
-  stateI.checked = active
+  stateI.checked = active.id
   livereloadI.checked = livereload
   logI.checked = log
   portI.setAttribute('placeholder', port)

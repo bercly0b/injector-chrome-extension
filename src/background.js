@@ -1,20 +1,13 @@
 let socket = null
-// on icon click
-// chrome.browserAction.onClicked.addListener(tab => {
-//   const domain = getDomain(tab.url)
-//   chrome.storage.local.get([domain], switchState(domain, tab))
-// })
 
-// on switch tab
-chrome.tabs.onActivated.addListener(ev => {
-  chrome.tabs.get(ev.tabId, tab => {
-    const domain = getDomain(tab.url)
+// on params change
+chrome.storage.onChanged.addListener((changes) => {
+  const { params, reconnect } = changes
 
-    chrome.storage.local.get([domain], result => {
-      const store = result[domain]
-      if (store && store.state) chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
-    })
-  })
+  if (params) {
+    const { newValue, oldValue } = params
+    if (oldValue.active.id !== newValue.active.id) switchState(newValue.active, newValue.port)
+  }
 })
 
 // on page load/reload
@@ -24,11 +17,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (favIconUrl) {
     const domain = getDomain(tab.url)
 
-    chrome.storage.local.get([domain], result => {
-      const store = result[domain]
-      if (store && store.state) {
-        executeScript(store)
-        chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
+    chrome.storage.local.get([domain, 'params'], res => {
+      const { params } = res
+      if (params.active && params.active.id === tabId) {
+        chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
+        const store = res[domain]
+        executeScript(store, tabId)
       }
     })
   }
@@ -42,57 +36,70 @@ const getDomain = url => {
   return withoutProtocol.slice(0, withoutProtocol.indexOf('/'))
 }
 
-const switchState = (domain, tab) => result => {
-  const store = result[domain]
-  if (store && store.state) {
-    chrome.storage.local.set({ [domain]: { ...store, state: false } }, () => {
-      chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('off') })
-      if (socket) {
-        socket.close()
-        socket = null
-      }
-      console.log('off')
+const switchState = (tab, port) => {
+  if (tab.id) {
+    const domain = getDomain(tab.url)
+    if (!socket) socket = connect(domain, tab.id, port)
+
+    chrome.storage.local.get([domain], res => {
+      const store = res[domain]
+      executeScript(store, tab.id)
     })
+    console.log('on')
   } else {
-    if (!socket) socket = connect(domain)
-    chrome.storage.local.set({ [domain]: { ...store, state: true } }, () => {
-      executeScript(store)
-      chrome.browserAction.setIcon({ tabId: tab.id, path: getIcons('on') })
-      console.log('on')
-    })
+    socket && socket.close()
+    socket = null
+    console.log('off')
   }
 }
 
-
-const connect = domain => {
-  const socket = new WebSocket('ws://localhost:9999')
+const connect = (domain, tabId, port = 9999) => {
+  const socket = new WebSocket(`ws://localhost:${port}`)
 
   socket.onclose = function(ev) {
-    console.log(`${getTime()} Websocket was disconnected (code: ${ev.code})`)
+    console.log(`Websocket was disconnected (code: ${ev.code})`)
+    chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
+  }
+
+  socket.onopen = function(ev) {
+    chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
   }
 
   socket.onmessage = function(ev) {
     const { data } = ev
     const type = data.slice(0, 2) === 'st' ? 'style' : 'script'
 
-    chrome.storage.local.get([domain], result => {
-      const store = { ...result[domain], [type]: data.slice(2) }
-      chrome.storage.local.set({ [domain]: store }, () => {
-        chrome.tabs.executeScript({ code: 'location.reload()' })
-      })
+    chrome.storage.local.get([domain], res => {
+      const store = { ...res[domain], [type]: data.slice(2) }
+      chrome.storage.local.set({ [domain]: store }, () => reloadPage(tabId))
     })
   }
 
   socket.onerror = function(err) {
-    console.log(`${getTime()} Websocket error: ${err.message}`)
+    console.log(`Websocket error: ${err.message}`)
   }
 
   return socket
 }
 
-const executeScript = store => {
-  chrome.tabs.executeScript({ code: `var store = ${JSON.stringify(store)}` }, () => {
-      chrome.tabs.executeScript({file: 'src/content.js'});
+const reloadPage = tabId => {
+  chrome.storage.local.get(['params'], ({ params }) => {
+    const { livereload } = params
+    if (livereload) chrome.tabs.executeScript(tabId, { code: 'location.reload()' })
+  })
+}
+
+const executeScript = (store, tabId) => {
+  console.log('--->', store, 'from execute')
+  chrome.storage.local.get(['params'], ({ params }) => {
+    const { log } = params
+    chrome.tabs.executeScript(
+      tabId,
+      { code: `var store = ${JSON.stringify({ ...store, log })}` },
+      () => {
+        chrome.tabs.executeScript(tabId, {file: 'src/content.js'})
+      }
+    )
   })
 }
 
@@ -101,10 +108,4 @@ const getIcons = state => {
     '64': `icons/${state}-64.png`,
     '128': `icons/${state}-128.png`
   }
-}
-
-const getTime = () => {
-  const now = new Date()
-  const add0 = n => n > 9 ? n : '0' + n
-  return `[${add0(now.getHours())}:${add0(now.getMinutes())}:${add0(now.getSeconds())}]`
 }
