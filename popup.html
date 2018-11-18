@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="src/popup.css">
+  </head>
+  <body>
+
+    <main class="container">
+      <section class="row">
+        <label for="state">Listen websocket</label>
+        <input id="state" class="checkbox" type="checkbox">
+      </section>
+      <section class="row">
+        <label for="livereload">Livereload</label>
+        <input id="livereload" class="checkbox" type="checkbox" disabled>
+      </section>
+      <section class="row">
+        <label for="log">Console log</label>
+        <input id="log" class="checkbox" type="checkbox" disabled>
+      </section>
+      <section class="row">
+        <label for="port">Port:</label>
+        <input id="port" class="text" type="text" placeholder="9999" value="">
+      </section>
+      <button id="reconnect" class="button" type="button" name="button">Reconnect</button>
+    </main>
+  </body>
+  <script type="text/javascript" src="src/popup.js"></script>
+</html>

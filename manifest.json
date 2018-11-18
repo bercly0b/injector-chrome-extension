@@ -16,11 +16,12 @@
 			"64": "icons/off-64.png",
 			"128": "icons/off-128.png"
 		},
-		"default_title": "You should have a server running on ws://localhost:9999"
+		"default_title": "You should have a server running on ws://localhost:9999",
+		"default_popup": "popup.html"
 	},
 
 	"background" : {
-	   "scripts" : ["background.js"],
+	   "scripts" : ["src/background.js"],
 	   "persistent" : false
 	},
 

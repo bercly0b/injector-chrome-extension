@@ -1,9 +1,9 @@
 let socket = null
 // on icon click
-chrome.browserAction.onClicked.addListener(tab => {
-  const domain = getDomain(tab.url)
-  chrome.storage.local.get([domain], switchState(domain, tab))
-})
+// chrome.browserAction.onClicked.addListener(tab => {
+//   const domain = getDomain(tab.url)
+//   chrome.storage.local.get([domain], switchState(domain, tab))
+// })
 
 // on switch tab
 chrome.tabs.onActivated.addListener(ev => {
@@ -92,7 +92,7 @@ const connect = domain => {
 
 const executeScript = store => {
   chrome.tabs.executeScript({ code: `var store = ${JSON.stringify(store)}` }, () => {
-      chrome.tabs.executeScript({file: 'content.js'});
+      chrome.tabs.executeScript({file: 'src/content.js'});
   })
 }
 
