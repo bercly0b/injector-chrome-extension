@@ -15,9 +15,11 @@ chrome.storage.onChanged.addListener((changes) => {
 
 // on page load/reload
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  const { favIconUrl } = changeInfo
 
-  if (favIconUrl) {
+  console.log(changeInfo)
+  const { status } = changeInfo
+
+  if (status && status === 'complete') {
     const domain = getDomain(tab.url)
 
     chrome.storage.local.get([domain, 'params'], res => {
@@ -51,34 +53,43 @@ const switchState = (tab, port) => {
       const store = res[domain]
       executeScript(store, tab.id)
     })
-    console.log('on')
   }
 }
 
 const connect = (domain, tabId, port = 9999) => {
   const socket = new WebSocket(`ws://localhost:${port}`)
 
-  socket.onclose = function(ev) {
-    console.log(`Websocket was disconnected (code: ${ev.code})`)
+  socket.onclose = ev => {
     chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
+
+    chrome.storage.local.get(['params'], ({ params }) => {
+      const newParams = { ...params, active: { id: false } }
+      chrome.storage.local.set({ params: newParams }, () => syncView(newParams))
+      chrome.tabs.executeScript(
+        tabId, 
+        { code: `console.log('[injector] Websocket was disconnected (code: ${ev.code})')` }
+      )
+    })
   }
 
-  socket.onopen = function(ev) {
+  socket.onopen = () => {
     chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
   }
 
-  socket.onmessage = function(ev) {
+  socket.onmessage = ev => {
     const { data } = ev
     const type = data.slice(0, 2) === 'st' ? 'style' : 'script'
+    const code = data.slice(2)
 
     chrome.storage.local.get([domain], res => {
-      const store = { ...res[domain], [type]: data.slice(2) }
+      if (res[domain][type] === code) return
+      const store = { ...res[domain], [type]: code }
       chrome.storage.local.set({ [domain]: store }, () => reloadPage(tabId))
     })
   }
 
-  socket.onerror = function(err) {
-    console.log(`Websocket error: ${err.message}`)
+  socket.onerror = err => {
+    chrome.tabs.executeScript(tabId, { code: `console.log('Websocket error: ${err}')` })
   }
 
   return socket

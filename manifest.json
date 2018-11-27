@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name" : "Script injection",
 	"short_name" : "si",
-	"version" : "1.2",
+	"version" : "1.2.1",
 	"description" : "Расширение для локального, динамического добавления js/css на страницу",
 	"permissions": ["activeTab", "storage", "tabs", "<all_urls>"],
 
@@ -22,8 +22,8 @@
 
 	"background" : {
 	   "scripts" : ["src/background.js"],
-	   "persistent" : false
+	   "persistent" : true
 	},
 
-	"content_security_policy": "script-src 'self' https://jsonplaceholder.typicode.com/*; object-src 'self'"
+	"content_security_policy": "script-src 'self'; object-src 'self'"
 }

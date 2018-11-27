@@ -11,15 +11,24 @@ function getTime() {
 }
 
 function injectStyles(style) {
-  document.body.insertAdjacentHTML('afterbegin', `<style data-from="injector">${style}</style>`)
-  log += ' Style '
+  const box = document.querySelector('style[data-source="injector"]')
+  if (box) box.innerHTML = style
+  else {
+    const el = `<style type="text/css" data-source="injector">${style}</style>`
+    document.head.insertAdjacentHTML('beforeend', el)
+  }
+  return log += ' Style '
 }
 
 function injectScript(script) {
-  const el = document.createElement('script')
-  el.textContent = script
-  el.setAttribute('data-from', 'injector')
-  document.body.appendChild(el)
-  if (log.length > 10) log += 'and script '
-  else log += ' Script '
+  const box = document.querySelector('script[data-source="injector"]')
+  if (box) box.innerHTML = script
+  else {
+    const el = document.createElement('script')
+    el.textContent = script
+    el.setAttribute('data-source', 'injector')
+    document.body.appendChild(el)
+  }
+  if (log.length > 10) return log += 'and script '
+  else return log += ' Script '
 }
