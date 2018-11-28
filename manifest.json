@@ -1,8 +1,8 @@
 {
 	"manifest_version" : 2,
-	"name" : "Script injection",
+	"name" : "Injector",
 	"short_name" : "si",
-	"version" : "1.2.1",
+	"version" : "1.0.4",
 	"description" : "Расширение для локального, динамического добавления js/css на страницу",
 	"permissions": ["activeTab", "storage", "tabs", "<all_urls>"],
 
