@@ -82,7 +82,7 @@ const connect = (domain, tabId, port = 9999) => {
     const code = data.slice(2)
 
     chrome.storage.local.get([domain], res => {
-      if (res[domain][type] === code) return
+      if (res[domain] && res[domain][type] && res[domain][type] === code) return
       const store = { ...res[domain], [type]: code }
       chrome.storage.local.set({ [domain]: store }, () => reloadPage(tabId))
     })
