@@ -6,9 +6,9 @@ const logI = get('log')
 const portI = get('port')
 const reconnectI = get('reconnect')
 
-chrome.storage.local.get(['params'], ({ params }) => {
+chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
   chrome.tabs.query({ active: true }, ([tab]) => {
-    if (params.active.id === tab.id) syncView(params)
+    if (tab && params.active.id === tab.id) syncView(params)
     params.port && portI.setAttribute('placeholder', params.port)
   })
 })

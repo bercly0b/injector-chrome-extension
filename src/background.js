@@ -1,12 +1,10 @@
 let socket = null
 
 // on params change
-chrome.storage.onChanged.addListener((changes) => {
+chrome.storage.onChanged.addListener(changes => {
   const { params, reconnect } = changes
-
   if (params) {
-    const { newValue, oldValue } = params
-    if (oldValue.active.id !== newValue.active.id) switchState(newValue.active, newValue.port)
+    trySwitchStateForParams(params)
   }
   // if (reconnect) {
   //   const { newValue, oldValue } = reconnect
@@ -15,7 +13,6 @@ chrome.storage.onChanged.addListener((changes) => {
 
 // on page load/reload
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-
   console.log(changeInfo)
   const { status } = changeInfo
 
@@ -47,12 +44,23 @@ const switchState = (tab, port) => {
 
   if (tab.id) {
     const domain = getDomain(tab.url)
-    if (!socket) socket = connect(domain, tab.id, port)
+    if (!socket)
+      socket = connect(
+        domain,
+        tab.id,
+        port
+      )
 
     chrome.storage.local.get([domain], res => {
       const store = res[domain]
       executeScript(store, tab.id)
     })
+  }
+}
+
+const trySwitchStateForParams = ({ newValue, oldValue = { active: {} } }) => {
+  if (newValue && oldValue.active.id !== newValue.active.id) {
+    switchState(newValue.active, newValue.port)
   }
 }
 
@@ -65,10 +73,11 @@ const connect = (domain, tabId, port = 9999) => {
     chrome.storage.local.get(['params'], ({ params }) => {
       const newParams = { ...params, active: { id: false } }
       chrome.storage.local.set({ params: newParams }, () => syncView(newParams))
-      chrome.tabs.executeScript(
-        tabId, 
-        { code: `console.log('[injector] Websocket was disconnected (code: ${ev.code})')` }
-      )
+      chrome.tabs.executeScript(tabId, {
+        code: `console.log('[injector] Websocket was disconnected (code: ${
+          ev.code
+        })')`
+      })
     })
   }
 
@@ -89,7 +98,9 @@ const connect = (domain, tabId, port = 9999) => {
   }
 
   socket.onerror = err => {
-    chrome.tabs.executeScript(tabId, { code: `console.log('Websocket error: ${err}')` })
+    chrome.tabs.executeScript(tabId, {
+      code: `console.log('Websocket error: ${err}')`
+    })
   }
 
   return socket
@@ -98,7 +109,8 @@ const connect = (domain, tabId, port = 9999) => {
 const reloadPage = tabId => {
   chrome.storage.local.get(['params'], ({ params }) => {
     const { livereload } = params
-    if (livereload) chrome.tabs.executeScript(tabId, { code: 'location.reload()' })
+    if (livereload)
+      chrome.tabs.executeScript(tabId, { code: 'location.reload()' })
   })
 }
 
@@ -109,7 +121,7 @@ const executeScript = (store, tabId) => {
       tabId,
       { code: `var store = ${JSON.stringify({ ...store, log })}` },
       () => {
-        chrome.tabs.executeScript(tabId, {file: 'src/content.js'})
+        chrome.tabs.executeScript(tabId, { file: 'src/content.js' })
       }
     )
   })
