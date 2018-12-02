@@ -14,6 +14,7 @@ chrome.storage.onChanged.addListener(changes => {
 // on page load/reload
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   console.log(changeInfo)
+
   const { status } = changeInfo
 
   if (status && status === 'complete') {
@@ -28,6 +29,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       }
     })
   }
+})
+
+// on close work tab
+chrome.tabs.onRemoved.addListener((id) => {
+  chrome.storage.local.get(['params'], ({ params }) => {
+    const { active } = params
+    if (active.id && active.id === id) {
+      const newParams = { ...params, active: { id: false } }
+      chrome.storage.local.set({ params: newParams })
+    }
+  })
 })
 
 const getDomain = url => {
@@ -68,16 +80,15 @@ const connect = (domain, tabId, port = 9999) => {
   const socket = new WebSocket(`ws://localhost:${port}`)
 
   socket.onclose = ev => {
-    chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
-
     chrome.storage.local.get(['params'], ({ params }) => {
-      const newParams = { ...params, active: { id: false } }
-      chrome.storage.local.set({ params: newParams }, () => syncView(newParams))
-      chrome.tabs.executeScript(tabId, {
-        code: `console.log('[injector] Websocket was disconnected (code: ${
-          ev.code
-        })')`
-      })
+      if (params.active.id) {
+        chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
+        chrome.tabs.executeScript(tabId, {
+          code: `console.log('[injector] Websocket was disconnected (code: ${ev.code})')`
+        })
+        const newParams = { ...params, active: { id: false } }
+        chrome.storage.local.set({ params: newParams })
+      }
     })
   }
 
