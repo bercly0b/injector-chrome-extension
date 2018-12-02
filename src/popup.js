@@ -3,6 +3,7 @@ const get = id => document.getElementById(id)
 const stateI = get('state')
 const livereloadI = get('livereload')
 const logI = get('log')
+const cssI = get('css')
 const portI = get('port')
 
 chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
@@ -28,6 +29,7 @@ stateI.addEventListener('input', function() {
 
 livereloadI.addEventListener('input', function() { setState('livereload', this.checked) })
 logI.addEventListener('input', function() { setState('log', this.checked) })
+cssI.addEventListener('input', function() { setState('fastCss', this.checked) })
 portI.addEventListener('change', function() { setState('port', this.value) })
 
 portI.addEventListener('keydown', function(ev) {
@@ -39,8 +41,8 @@ portI.addEventListener('keydown', function(ev) {
 })
 
 const syncView = params => {
-  const { active, livereload, log, port } = params
-  const controls = [livereloadI, logI]
+  const { active, livereload, log, port, fastCss } = params
+  const controls = [livereloadI, logI, cssI]
 
   if (active.id) {
     controls.forEach(e => e.removeAttribute('disabled'))
@@ -53,6 +55,7 @@ const syncView = params => {
   stateI.checked = active.id
   livereloadI.checked = livereload
   logI.checked = log
+  cssI.checked = fastCss
   portI.setAttribute('value', port)
 }
 
@@ -66,6 +69,6 @@ const setState = (key, value) => {
 const checkKey = event => {
   const { key } = event
   if (key === ' ') return false
-  if (key === 'Backspace' || !isNaN(key)) return true
+  if (key === 'Backspace' || key === 'ArrowLeft' || key === 'ArrowRight' || !isNaN(key)) return true
   return false
 }
