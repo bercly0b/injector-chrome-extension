@@ -1,0 +1,30 @@
+{
+  "name": "injector-extention",
+  "version": "1.2.0",
+  "description": "",
+  "main": "scr/index.js",
+  "scripts": {
+    "build": "gulp build",
+    "dev": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bercly0b/injector-chrome-extention.git"
+  },
+  "keywords": [
+    "extension"
+  ],
+  "author": "rozov1",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bercly0b/injector-chrome-extention/issues"
+  },
+  "homepage": "https://github.com/bercly0b/injector-chrome-extention#readme",
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "gulp": "^4.0.0",
+    "gulp-sass": "^4.0.2",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
+}

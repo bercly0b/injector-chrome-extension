@@ -75,7 +75,7 @@ const executeScript = (store, tabId) => {
       tabId,
       { code: `var store = ${JSON.stringify({ ...store, log })}` },
       () => {
-        chrome.tabs.executeScript(tabId, { file: 'src/content.js' })
+        chrome.tabs.executeScript(tabId, { file: 'content.js' })
       }
     )
   })
