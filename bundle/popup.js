@@ -55,7 +55,7 @@ const syncView = (params, view) => {
   view.log.checked = log
   view.css.checked = fastCss
   view.waitKam.checked = wait
-  view.port.setAttribute('value', +port)
+  port && view.port.setAttribute('value', +port)
 }
 
 module.exports = syncView

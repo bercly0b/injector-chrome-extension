@@ -39,7 +39,7 @@ const handleWsMessage = (domain, tabId) => ev => {
   })
 }
 
-const connect = (domain, { tabId, title }, port = 9999) => {
+const connect = (domain, { id: tabId, title }, port = 9999) => {
   const socket = new WebSocket(`ws://localhost:${port}`)
 
   socket.addEventListener('message', handleWsMessage(domain, tabId))
@@ -91,6 +91,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     chrome.storage.local.get([domain, 'params'], res => {
       const { params } = res
+
       if (params.active && params.active.id === tabId) {
         chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
         const store = res[domain]

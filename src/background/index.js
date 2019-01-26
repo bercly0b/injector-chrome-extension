@@ -18,6 +18,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     chrome.storage.local.get([domain, 'params'], res => {
       const { params } = res
+
       if (params.active && params.active.id === tabId) {
         chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
         const store = res[domain]

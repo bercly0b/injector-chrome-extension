@@ -38,7 +38,7 @@ const handleWsMessage = (domain, tabId) => ev => {
   })
 }
 
-const connect = (domain, { tabId, title }, port = 9999) => {
+const connect = (domain, { id: tabId, title }, port = 9999) => {
   const socket = new WebSocket(`ws://localhost:${port}`)
 
   socket.addEventListener('message', handleWsMessage(domain, tabId))

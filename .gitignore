@@ -2,3 +2,4 @@ node_modules
 .DS_Store
 chrome.pem
 .tern-port
+bundle.zip
