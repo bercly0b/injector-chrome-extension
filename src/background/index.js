@@ -70,10 +70,10 @@ const connect = (domain, tabId, port = 9999) => {
 
 const executeScript = (store, tabId) => {
   chrome.storage.local.get(['params'], ({ params }) => {
-    const { log } = params
+    const { log, wait } = params
     chrome.tabs.executeScript(
       tabId,
-      { code: `var store = ${JSON.stringify({ ...store, log })}` },
+      { code: `var store = ${JSON.stringify({ ...store, log, wait })}` },
       () => {
         chrome.tabs.executeScript(tabId, { file: 'content.js' })
       }
