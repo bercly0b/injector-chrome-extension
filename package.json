@@ -12,7 +12,8 @@
     "url": "git+https://github.com/bercly0b/injector-chrome-extention.git"
   },
   "keywords": [
-    "extension"
+    "extension",
+    "chrome"
   ],
   "author": "rozov1",
   "license": "ISC",

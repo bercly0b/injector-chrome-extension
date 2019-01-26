@@ -18,8 +18,8 @@ chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
 })
 
 view.state.addEventListener('input', function() {
-  chrome.storage.local.get(['params'], ({ params }) => {
-    if (this.checked) {
+  chrome.storage.local.get(['params'], ({ params = {} }) => {
+    if (this.checked && (view.port.value || params.port)) {
       chrome.tabs.query({ active: true }, ([tab]) => {
         const newParams = { ...params, active: tab }
         chrome.storage.local.set({ params: newParams }, () => syncView(newParams, view))
@@ -35,4 +35,4 @@ view.livereload.addEventListener('input', function() { setState('livereload', th
 view.log.addEventListener('input', function() { setState('log', this.checked) })
 view.css.addEventListener('input', function() { setState('fastCss', this.checked) })
 view.waitKam.addEventListener('input', function() { setState('wait', this.checked) })
-view.port.addEventListener('input', function() { setState('port', this.value) })
+view.port.addEventListener('input', function() { setState('port', +this.value) })

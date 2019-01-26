@@ -7,10 +7,8 @@ const handleWsClose = tabId => ev => {
     wasClean ? 'closed' : `disconnected with error ${code}`
   }`
 
-  chrome.tabs.executeScript(tabId, {
-    code: getLogMsg(message, !wasClean)
-  })
-  
+  chrome.tabs.executeScript(tabId, { code: getLogMsg(message, !wasClean) })
+
   chrome.storage.local.get(['params'], ({ params }) => {
     chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
     const newParams = { ...params, active: { id: false } }
