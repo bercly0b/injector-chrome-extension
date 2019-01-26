@@ -1,3 +1,6 @@
+const connect = require('./connect')
+const executeScript = require('./executeScript')
+const { getDomain, getIcons } = require('./utils')
 let socket = null
 
 // on params change
@@ -55,86 +58,5 @@ const switchState = (tab, port) => {
       const store = res[domain]
       executeScript(store, tab.id)
     })
-  }
-}
-
-const connect = (domain, tabId, port = 9999) => {
-  const socket = new WebSocket(`ws://localhost:${port}`)
-
-  socket.onmessage = handleWsMessage(domain, tabId)
-  socket.onclose = handleWsClose(tabId)
-  socket.onopen = () => chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
-
-  return socket
-}
-
-const executeScript = (store, tabId) => {
-  chrome.storage.local.get(['params'], ({ params }) => {
-    const { log, wait } = params
-    chrome.tabs.executeScript(
-      tabId,
-      { code: `var store = ${JSON.stringify({ ...store, log, wait })}` },
-      () => {
-        chrome.tabs.executeScript(tabId, { file: 'content.js' })
-      }
-    )
-  })
-}
-
-const handleWsClose = tabId => ev => {
-  const { wasClean, code } = ev
-  let message = 'Websocket was '
-  if (wasClean) message += 'closed.'
-  else message += `disconnected with error ${code}`
-
-  chrome.tabs.executeScript(tabId, {
-    code: `console.log('[Injector] ${message}')`
-  })
-  
-  chrome.storage.local.get(['params'], ({ params }) => {
-    chrome.browserAction.setIcon({ tabId, path: getIcons('off') })
-    const newParams = { ...params, active: { id: false } }
-    chrome.storage.local.set({ params: newParams })
-  })
-}
-
-const handleWsMessage = (domain, tabId) => ev => {
-  const { data } = ev
-  const type = data.slice(0, 2) === 'st' ? 'style' : 'script'
-  const code = data.slice(2)
-
-  chrome.storage.local.get([domain, 'params'], res => {
-    const store = res[domain] || {}
-    const { fastCss, livereload } = res.params
-
-    if (store[type] && store[type] === code) return
-
-    const newStore = { ...store, [type]: code }
-
-    if (fastCss && type === 'style') {
-      executeScript({ style: code }, tabId)
-      chrome.storage.local.set({ [domain]: newStore })
-    } else {
-      chrome.storage.local.set({ [domain]: newStore }, () => reloadPage(livereload, tabId))
-    }
-  })
-}
-
-const reloadPage = (needReload, tabId) => {
-  if (needReload) chrome.tabs.executeScript(tabId, { code: 'location.reload()' })
-}
-
-const getDomain = url => {
-  const begin = url.startsWith('https') ? 8 : 7
-  const withoutProtocol = url.slice(begin)
-  const beginPath = withoutProtocol.indexOf('/')
-  if (!~beginPath) return withoutProtocol
-  return withoutProtocol.slice(0, withoutProtocol.indexOf('/'))
-}
-
-const getIcons = state => {
-  return {
-    '64': `icons/${state}-64.png`,
-    '128': `icons/${state}-128.png`
   }
 }

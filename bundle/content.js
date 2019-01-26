@@ -33,21 +33,16 @@ function injectScript(script) {
 injected.length && store.log && log(`${injected.join(' and ')} was injected`)
 
 },{"./log":2,"./wrapScript":3}],2:[function(require,module,exports){
-const getTime = () => {
-  const now = new Date()
-  const add0 = n => n > 9 ? n : '0' + n
-  return `[${add0(now.getHours())}:${add0(now.getMinutes())}:${add0(now.getSeconds())}]`
-}
+const { getTime } = require('../utils')
 
-const log = (msg, isError) => {
-  const style = `color: ${isError ? '#dc3545' : '#28a745'}`
-  console.group (`${getTime()} Injector:`)
-  console.log('%c%s', style, msg[0].toUpperCase() + msg.slice(1))
+const log = msg => {
+  console.group(`${getTime()} Injector:`)
+  console.log('%c%s', 'color: #28a745;', msg[0].toUpperCase() + msg.slice(1))
   console.groupEnd()
 }
 
 module.exports = log
-},{}],3:[function(require,module,exports){
+},{"../utils":4}],3:[function(require,module,exports){
 const wrapScript = script => {
   return `
     const run = () => {
@@ -62,4 +57,12 @@ const wrapScript = script => {
 }
 
 module.exports = wrapScript
+},{}],4:[function(require,module,exports){
+const getTime = () => {
+  const now = new Date()
+  const add0 = n => n > 9 ? n : '0' + n
+  return `[${add0(now.getHours())}:${add0(now.getMinutes())}:${add0(now.getSeconds())}]`
+}
+
+module.exports = { getTime }
 },{}]},{},[1]);
