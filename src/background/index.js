@@ -6,14 +6,11 @@ let socket = null
 // on params change
 chrome.storage.onChanged.addListener(changes => {
   const { params } = changes
-  console.log('changes:', changes)
   if (params && params.newValue.port) trySwitchState(params.newValue, params.oldValue)
 })
 
 // on page load/reload
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log(changeInfo)
-
   const { status } = changeInfo
 
   if (status && status === 'loading') {
@@ -53,7 +50,7 @@ const switchState = (tab, port) => {
 
   if (tab.id) {
     const domain = getDomain(tab.url)
-    if (!socket) socket = connect(domain, tab.id, port)
+    if (!socket) socket = connect(domain, tab, port)
 
     chrome.storage.local.get([domain], res => {
       const store = res[domain]

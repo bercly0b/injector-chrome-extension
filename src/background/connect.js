@@ -38,17 +38,18 @@ const handleWsMessage = (domain, tabId) => ev => {
   })
 }
 
-const connect = (domain, tabId, port = 9999) => {
+const connect = (domain, { tabId, title }, port = 9999) => {
   const socket = new WebSocket(`ws://localhost:${port}`)
 
-  socket.onmessage = handleWsMessage(domain, tabId)
-  socket.onclose = handleWsClose(tabId)
-  socket.onopen = () => {
+  socket.addEventListener('message', handleWsMessage(domain, tabId))
+  socket.addEventListener('close', handleWsClose(tabId))
+  socket.addEventListener('open', () => {
+    socket.send(title)
     chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
     chrome.tabs.executeScript(tabId, {
       code: getLogMsg('Websocket is connected successfully')
     })
-  }
+  }) 
   return socket
 }
 
