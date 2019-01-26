@@ -1,6 +1,6 @@
-const utils = require('./utils')
+const syncView = require('./syncView')
+const { setState, get } = require('./utils')
 
-const { syncView, setState, checkKey, get } = utils
 const view = {
   state: get('state'),
   livereload: get('livereload'),
@@ -35,12 +35,4 @@ view.livereload.addEventListener('input', function() { setState('livereload', th
 view.log.addEventListener('input', function() { setState('log', this.checked) })
 view.css.addEventListener('input', function() { setState('fastCss', this.checked) })
 view.waitKam.addEventListener('input', function() { setState('wait', this.checked) })
-view.port.addEventListener('change', function() { setState('port', this.value) })
-
-view.port.addEventListener('keydown', function(ev) {
-  if (checkKey(ev)) return false
-  else {
-    ev.preventDefault()
-    return
-  }
-})
+view.port.addEventListener('input', function() { setState('port', this.value) })

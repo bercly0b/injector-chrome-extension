@@ -67,3 +67,7 @@ body {
     opacity: 0.4; }
   .text:focus {
     outline: none; }
+  .text::-webkit-input-placeholder {
+    opacity: 0.4; }
+  .text::-webkit-inner-spin-button {
+    display: none; }

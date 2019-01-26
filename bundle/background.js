@@ -80,7 +80,8 @@ let socket = null
 // on params change
 chrome.storage.onChanged.addListener(changes => {
   const { params } = changes
-  if (params) trySwitchStateForParams(params)
+  console.log('changes:', changes)
+  if (params && params.newValue.port) trySwitchState(params.newValue, params.oldValue)
 })
 
 // on page load/reload
@@ -114,9 +115,9 @@ chrome.tabs.onRemoved.addListener((id) => {
   })
 })
 
-const trySwitchStateForParams = ({ newValue, oldValue = { active: {} } }) => {
-  if (newValue && oldValue.active.id !== newValue.active.id) {
-    switchState(newValue.active, newValue.port)
+const trySwitchState = (next, prev = {}) => {
+  if (next.active && (!prev.active || prev.active.id !== next.active.id)) {
+    switchState(next.active, next.port)
   }
 }
 

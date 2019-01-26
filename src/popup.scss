@@ -90,4 +90,12 @@ body {
   &:focus {
     outline: none;
   }
+
+  &::-webkit-input-placeholder {
+    opacity: 0.4;
+  }
+
+  &::-webkit-inner-spin-button {
+    display: none;
+  }
 }
