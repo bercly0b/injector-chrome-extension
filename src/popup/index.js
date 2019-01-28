@@ -10,7 +10,13 @@ const view = {
   port: get('port')
 }
 
+// sync popup view on open
 chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
+  if (!params.port) {
+    view.state.setAttribute('disabled', true)
+    view.port.focus()
+  }
+
   chrome.tabs.query({ active: true }, tabs => {
     chrome.windows.getCurrent({}, ({ id: activeWindowId }) => {
       const activeTab = tabs.find(({ windowId }) => windowId === activeWindowId)
@@ -20,9 +26,10 @@ chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
   })
 })
 
+// controlls handlers
 view.state.addEventListener('input', function() {
   chrome.storage.local.get(['params'], ({ params = {} }) => {
-    if (this.checked && (view.port.value || params.port)) {
+    if (this.checked && params.port) {
       chrome.tabs.query({ active: true }, tabs => {
         chrome.windows.getCurrent({}, ({ id: activeWindowId }) => {
           const activeTab = tabs.find(({ windowId }) => windowId === activeWindowId)
@@ -41,4 +48,7 @@ view.livereload.addEventListener('input', function() { setState('livereload', th
 view.log.addEventListener('input', function() { setState('log', this.checked) })
 view.css.addEventListener('input', function() { setState('fastCss', this.checked) })
 view.waitKam.addEventListener('input', function() { setState('wait', this.checked) })
-view.port.addEventListener('input', function() { setState('port', +this.value) })
+view.port.addEventListener('input', function() {
+  setState('port', +this.value)
+  view.state.removeAttribute('disabled', true)
+})

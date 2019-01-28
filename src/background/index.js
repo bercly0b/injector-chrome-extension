@@ -19,7 +19,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     chrome.storage.local.get([domain, 'params'], res => {
       const { params } = res
 
-      if (params.active && params.active.id === tabId) {
+      if (params && params.active && params.active.id === tabId) {
         chrome.browserAction.setIcon({ tabId, path: getIcons('on') })
         const store = res[domain]
         executeScript(store, tabId)
@@ -30,7 +30,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // on close work tab
 chrome.tabs.onRemoved.addListener((id) => {
-  chrome.storage.local.get(['params'], ({ params }) => {
+  chrome.storage.local.get(['params'], ({ params = {} }) => {
     const { active } = params
     if (active.id && active.id === id) {
       const newParams = { ...params, active: { id: false } }

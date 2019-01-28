@@ -14,6 +14,7 @@ const syncView = (params, view) => {
   view.log.checked = log
   view.css.checked = fastCss
   view.waitKam.checked = wait
+  view.state.removeAttribute('disabled')
   port && view.port.setAttribute('value', +port)
 }
 
