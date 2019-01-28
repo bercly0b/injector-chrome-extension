@@ -11,18 +11,24 @@ const view = {
 }
 
 chrome.storage.local.get(['params'], ({ params = { active: {} } }) => {
-  chrome.tabs.query({ active: true }, ([tab]) => {
-    if (tab && params.active.id === tab.id) syncView(params, view)
-    params.port && view.port.setAttribute('placeholder', params.port)
+  chrome.tabs.query({ active: true }, tabs => {
+    chrome.windows.getCurrent({}, ({ id: activeWindowId }) => {
+      const activeTab = tabs.find(({ windowId }) => windowId === activeWindowId)
+      if (params.active.id === activeTab.id) syncView(params, view)
+      params.port && view.port.setAttribute('placeholder', params.port)
+    })
   })
 })
 
 view.state.addEventListener('input', function() {
   chrome.storage.local.get(['params'], ({ params = {} }) => {
     if (this.checked && (view.port.value || params.port)) {
-      chrome.tabs.query({ active: true }, ([tab]) => {
-        const newParams = { ...params, active: tab }
-        chrome.storage.local.set({ params: newParams }, () => syncView(newParams, view))
+      chrome.tabs.query({ active: true }, tabs => {
+        chrome.windows.getCurrent({}, ({ id: activeWindowId }) => {
+          const activeTab = tabs.find(({ windowId }) => windowId === activeWindowId)
+          const newParams = { ...params, active: activeTab }
+          chrome.storage.local.set({ params: newParams }, () => syncView(newParams, view))
+        })
       })
     } else {
       const newParams = { ...params, active: { id: false } }
