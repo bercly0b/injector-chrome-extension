@@ -18,7 +18,7 @@ function injectStyles(style) {
 function injectScript(script) {
   const box = document.querySelector('script[data-source="injector"]')
   script = store.wait ? wrapScript(script) : script
-  
+
   if (box) box.innerHTML = script
   else {
     const el = document.createElement('script')

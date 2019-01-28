@@ -1,0 +1,10 @@
+{
+    "extends": "standard",
+    "rules": {
+        "space-before-function-paren": 0,
+        "padded-blocks": 0,
+        "object-property-newline": 0,
+        "no-useless-escape": 0,
+        "no-undef": 0
+      }
+}

@@ -2,7 +2,7 @@ const executeScript = require('./executeScript')
 const { getIcons, reloadPage, getLogMsg } = require('./utils')
 
 const handleWsClose = tabId => ev => {
-  const { wasClean, code } = ev  
+  const { wasClean, code } = ev
   const message = `Websocket was ${
     wasClean ? 'closed' : `disconnected with error ${code}`
   }`
@@ -49,7 +49,7 @@ const connect = (domain, { id: tabId, title }, port = 9999) => {
     chrome.tabs.executeScript(tabId, {
       code: getLogMsg('Websocket is connected successfully')
     })
-  }) 
+  })
   return socket
 }
 
