@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="src/popup.css">
+    <link rel="stylesheet" href="popup.css">
   </head>
   <body>
     <main class="container">
@@ -22,10 +22,14 @@
         <input id="css" class="checkbox" type="checkbox" disabled>
       </section>
       <section class="row">
+        <label for="wait">Wait for Kameleoon</label>
+        <input id="wait" class="checkbox" type="checkbox" disabled>
+      </section>
+      <section class="row">
         <label for="port">Port</label>
-        <input id="port" class="text" type="text" placeholder="9999" maxlength="5">
+        <input id="port" class="text" type="number" placeholder="9999" maxlength="5">
       </section>
     </main>
-    <script type="text/javascript" src="src/popup.js"></script>
+    <script type="text/javascript" src="popup.js"></script>
   </body>
 </html>

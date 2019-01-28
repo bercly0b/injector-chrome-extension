@@ -1,4 +1,5 @@
 node_modules
+bundle
+bundle.zip
 .DS_Store
-chrome.pem
 .tern-port

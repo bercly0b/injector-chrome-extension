@@ -2,8 +2,8 @@
 	"manifest_version" : 2,
 	"name" : "Injector",
 	"short_name" : "si",
-	"version" : "1.1.4",
-	"description" : "Расширение для локального, динамического добавления js/css на страницу",
+	"version" : "1.2.0",
+	"description" : "Extension for local, dynamic addition of js/css to the any page",
 	"permissions": ["activeTab", "storage", "tabs", "<all_urls>"],
 
 	"icons": {
@@ -16,12 +16,12 @@
 			"64": "icons/off-64.png",
 			"128": "icons/off-128.png"
 		},
-		"default_title": "You should have a server running on ws://localhost:9999",
+		"default_title": "You should have a Websocket server. Use with gulp and gulp-ws-sender",
 		"default_popup": "popup.html"
 	},
 
 	"background" : {
-	   "scripts" : ["src/background.js"],
+	   "scripts" : ["background.js"],
 	   "persistent" : true
 	},
 
