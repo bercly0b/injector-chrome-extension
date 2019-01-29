@@ -2,7 +2,7 @@
 	"manifest_version" : 2,
 	"name" : "Injector",
 	"short_name" : "si",
-	"version" : "1.2.0",
+	"version" : "1.2.1",
 	"description" : "Extension for local, dynamic addition of js/css to the any page",
 	"permissions": ["activeTab", "storage", "tabs", "<all_urls>"],
 

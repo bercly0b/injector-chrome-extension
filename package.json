@@ -1,7 +1,7 @@
 {
   "name": "injector-extention",
-  "version": "1.2.0",
-  "description": "",
+  "version": "1.2.1",
+  "description": "Extension for local, dynamic addition of js/css to the any page",
   "main": "scr/index.js",
   "scripts": {
     "build": "gulp build",
@@ -13,7 +13,8 @@
   },
   "keywords": [
     "extension",
-    "chrome"
+    "chrome",
+    "injector"
   ],
   "author": "rozov1",
   "license": "ISC",
