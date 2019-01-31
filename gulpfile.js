@@ -47,7 +47,7 @@ gulp.task('buildBg', () => {
     .bundle()
     .pipe(source('background.js'))
     .pipe(buffer())
-    // .pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest(path.build))
 })
 
@@ -56,7 +56,7 @@ gulp.task('buildContent', () => {
     .bundle()
     .pipe(source('content.js'))
     .pipe(buffer())
-    // .pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest(path.build))
 })
 
@@ -65,7 +65,7 @@ gulp.task('buildPopup', () => {
     .bundle()
     .pipe(source('popup.js'))
     .pipe(buffer())
-    // .pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest(path.build))
 })
 

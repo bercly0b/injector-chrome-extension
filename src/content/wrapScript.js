@@ -4,7 +4,7 @@ const wrapScript = script => {
       ${script}
     }
     const check = setInterval(() => {
-      if (typeof Kam !== 'undefined') {
+      if (typeof Kameleoon !== 'undefined') {
         clearInterval(check)
         run()
       }
